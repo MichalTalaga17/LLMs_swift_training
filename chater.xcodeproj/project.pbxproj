@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		47D9CDF62DDE75BA00ADA536 /* LLM in Frameworks */ = {isa = PBXBuildFile; productRef = 47D9CDF52DDE75BA00ADA536 /* LLM */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		47D9CDE42DDE74D700ADA536 /* chater.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chater.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47D9CDF62DDE75BA00ADA536 /* LLM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = chater;
 			packageProductDependencies = (
+				47D9CDF52DDE75BA00ADA536 /* LLM */,
 			);
 			productName = chater;
 			productReference = 47D9CDE42DDE74D700ADA536 /* chater.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 47D9CDDB2DDE74D700ADA536;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				47D9CDF42DDE75BA00ADA536 /* XCRemoteSwiftPackageReference "LLM" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 47D9CDE52DDE74D700ADA536 /* Products */;
 			projectDirPath = "";
@@ -324,6 +333,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		47D9CDF42DDE75BA00ADA536 /* XCRemoteSwiftPackageReference "LLM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/eastriverlee/LLM.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		47D9CDF52DDE75BA00ADA536 /* LLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 47D9CDF42DDE75BA00ADA536 /* XCRemoteSwiftPackageReference "LLM" */;
+			productName = LLM;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 47D9CDDC2DDE74D700ADA536 /* Project object */;
 }

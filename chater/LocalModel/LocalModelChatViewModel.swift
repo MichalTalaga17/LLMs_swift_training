@@ -11,6 +11,8 @@ import Foundation
 import LLM
 import SwiftUI
 
+
+
 @MainActor
 class LocalModelChatViewModel: ObservableObject {
     @Published var answerText: String = ""
@@ -30,6 +32,8 @@ class LocalModelChatViewModel: ObservableObject {
 
     func sendMessage() {
         Task {
+            let question: String = message
+            message = ""
             let systemPrompt = "You are kind and helpful."
             let modelRef = HuggingFaceModel("unsloth/Qwen3-0.6B-GGUF", .Q4_K_M, template: .chatML(systemPrompt))
 
@@ -37,11 +41,10 @@ class LocalModelChatViewModel: ObservableObject {
                 answerText = "FAILED TO INITIALIZE MODEL"
                 return
             }
-
-            _ = bot.preprocess(message, [])
+            _ = bot.preprocess(question, [])
             answerText = ""
 
-            await bot.respond(to: message) { stream in
+            await bot.respond(to: question) { stream in
                 var fullAnswer = ""
                 for await token in stream {
                     fullAnswer += token
@@ -49,8 +52,6 @@ class LocalModelChatViewModel: ObservableObject {
                 }
                 return fullAnswer
             }
-
-            message = ""
             isFocused = false
         }
     }

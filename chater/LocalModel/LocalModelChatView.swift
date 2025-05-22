@@ -1,46 +1,50 @@
-import SwiftUI
 import MarkdownUI
+import SwiftUI
 
 struct LocalModelChatView: View {
     @StateObject private var viewModel = LocalModelChatViewModel()
     @FocusState private var isTextFieldFocused: Bool
-
     var body: some View {
         VStack {
             ScrollView {
+                
+                
+                
                 if viewModel.answerText.isEmpty {
                     ContentUnavailableView("Start your chat", systemImage: "message")
+                        .foregroundStyle(.white)
                 } else {
                     Markdown(viewModel.answerText.filteredMarkdown)
-                        .padding()
+                        .markdownTextStyle() {
+                            ForegroundColor(.white)
+                            
+                        }
                 }
-            }
+            }.scrollBounceBehavior(.basedOnSize)
 
             Divider()
 
             VStack(alignment: .leading, spacing: 12) {
-                if viewModel.isFocused {
-                    HStack(spacing: 8) {
-                        ForEach(viewModel.suggestions, id: \.self) { text in
-                            Text(text)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(Color(.systemGray6))
-                                .clipShape(Capsule())
-                                .onTapGesture {
-                                    viewModel.selectSuggestion(text)
-                                }
-                        }
-                    }
-                    .transition(.opacity)
-                }
+//                if viewModel.isFocused {
+//                    HStack(spacing: 8) {
+//                        ForEach(viewModel.suggestions, id: \.self) { text in
+//                            Text(text)
+//                                .padding(.horizontal, 10)
+//                                .padding(.vertical, 6)
+//                                .background(Color.white.opacity(0.1))
+//                                .onTapGesture {
+//                                    viewModel.selectSuggestion(text)
+//                                }
+//                        }
+//                    }
+//                }
 
                 HStack {
-                    TextField("Ask anything", text: $viewModel.message)
-                        .textFieldStyle(.roundedBorder)
+                    TextField("", text: $viewModel.message, prompt: Text("Ask a question...").foregroundColor(.white.opacity(0.8)))
+                        .foregroundStyle(Color.white)
                         .focused($isTextFieldFocused)
-                        .onChange(of: isTextFieldFocused) { focused in
-                            viewModel.isFocused = focused
+                        .onChange(of: isTextFieldFocused) { _, newValue in
+                            viewModel.isFocused = newValue
                         }
 
                     Button {
@@ -48,21 +52,20 @@ struct LocalModelChatView: View {
                     } label: {
                         Image(systemName: "arrow.up")
                             .padding(8)
-                            .background(viewModel.message.isEmpty ? Color.gray.opacity(0.3) : .blue)
-                            .foregroundColor(.white)
+                            .background(viewModel.message.isEmpty ? Color.white.opacity(0.1) : .white)
+                            .foregroundColor(viewModel.message.isEmpty ? .white : .black)
                             .clipShape(Circle())
                     }
                     .disabled(viewModel.message.isEmpty)
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
+            .background(Color.white.opacity(0.1))
         }
-        .animation(.easeInOut, value: viewModel.isFocused)
+        .background(Color(red: 0.11, green: 0.11, blue: 0.11))
+        // .animation(.easeInOut, value: viewModel.isFocused)
     }
 }
-
-
 
 #Preview {
     LocalModelChatView()

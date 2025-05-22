@@ -5,7 +5,6 @@
 //  Created by Michał Talaga on 22/05/2025.
 //
 
-
 import Foundation
 import SwiftUI
 
@@ -38,12 +37,17 @@ class OnlineModelChatViewModel: ObservableObject {
                 return
             }
 
+            guard let apiKey = Bundle.main.infoDictionary?["OPENROUTER_API_KEY"] as? String, !apiKey.isEmpty else {
+                answerText = "❌ Missing API Key"
+                return
+            }
+
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer YOUR_API_KEY_HERE", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("https://yourapp.example.com", forHTTPHeaderField: "HTTP-Referer")
-            request.setValue("Your App Name", forHTTPHeaderField: "X-Title")
+            request.setValue("Chater App", forHTTPHeaderField: "X-Title")
 
             let payload: [String: Any] = [
                 "model": "deepseek/deepseek-chat-v3-0324:free",
@@ -84,4 +88,3 @@ struct OpenRouterResponse: Codable {
     }
     let choices: [Choice]
 }
-

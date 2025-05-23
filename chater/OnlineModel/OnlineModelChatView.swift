@@ -14,6 +14,7 @@ struct OnlineModelChatView: View {
 
     var body: some View {
         VStack {
+            // Picker wyboru modelu
             Picker("Select Model", selection: $viewModel.selectedModel) {
                 ForEach(AIModel.allCases) { model in
                     Text(model.displayName).tag(model)
@@ -22,7 +23,7 @@ struct OnlineModelChatView: View {
             .padding(.horizontal)
             .foregroundColor(.white)
             .accentColor(.white)
-            
+
             ScrollView {
                 if viewModel.answerText.isEmpty {
                     ContentUnavailableView("Start your chat", systemImage: "message")
@@ -34,12 +35,10 @@ struct OnlineModelChatView: View {
                         }
                         .padding()
                 }
-                
             }
             .scrollBounceBehavior(.basedOnSize)
 
-            Spacer()
-
+            // Sugestie i pole tekstowe
             VStack(alignment: .leading) {
                 if viewModel.isFocused {
                     HStack(spacing: 8) {
@@ -49,8 +48,11 @@ struct OnlineModelChatView: View {
                                 .padding(.vertical, 6)
                                 .onTapGesture { viewModel.selectSuggestion(text) }
                                 .foregroundStyle(Color.white)
+                                .background(Color.white.opacity(0.1))
+                                .clipShape(Capsule())
                         }
                     }
+                    .padding(.horizontal)
                 }
 
                 HStack {
@@ -74,10 +76,11 @@ struct OnlineModelChatView: View {
                 }
                 .padding()
                 .background(Color.white.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal)
             }
         }
         .background(Color(red: 0.11, green: 0.11, blue: 0.11))
-        // .animation(.easeInOut, value: viewModel.isFocused)
     }
 }
 

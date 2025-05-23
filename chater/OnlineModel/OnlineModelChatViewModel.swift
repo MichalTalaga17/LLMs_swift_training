@@ -13,9 +13,10 @@ class OnlineModelChatViewModel: ObservableObject {
     @Published var answerText: String = ""
     @Published var message: String = ""
     @Published var isFocused: Bool = false
-
+    @Published var selectedModel: AIModel = .llama32_11b_vision
+    
     let suggestions = [
-        "Write advanced SwiftUI view",
+        "Why sky is blue?",
         "Recommend the best comedy show",
         "Top video games of 2025"
     ]
@@ -27,6 +28,8 @@ class OnlineModelChatViewModel: ObservableObject {
 
     func sendMessage() {
         let userMessage = message
+        print("[sendMessage] Starting message send. User message: \(userMessage)")
+        
         answerText = ""
         message = ""
         isFocused = false
@@ -34,11 +37,13 @@ class OnlineModelChatViewModel: ObservableObject {
         Task {
             guard let url = URL(string: "https://openrouter.ai/api/v1/chat/completions") else {
                 answerText = "Invalid API URL"
+                print("[sendMessage] ERROR: Invalid API URL")
                 return
             }
 
             guard let apiKey = Bundle.main.infoDictionary?["OPENROUTER_API_KEY"] as? String, !apiKey.isEmpty else {
                 answerText = "Missing API Key"
+                print("[sendMessage] ERROR: Missing API Key")
                 return
             }
 
@@ -49,24 +54,28 @@ class OnlineModelChatViewModel: ObservableObject {
             request.setValue("Chater App", forHTTPHeaderField: "X-Title")
 
             let payload: [String: Any] = [
-                "model": "deepseek/deepseek-chat-v3-0324:free",
+                "model": selectedModel.modelID,
                 "messages": [
                     ["role": "user", "content": userMessage],
-                    ///TODO
-                    ["role": "system", "content": "The length of the response cannot exceed 100 characters"]
+                    //["role": "system", "content": "The length of the response cannot exceed 100 characters"]
                 ],
                 "stream": true
             ]
 
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+                print("[sendMessage] Payload encoded successfully: \(payload)")
             } catch {
                 answerText = "Failed to encode request"
+                print("[sendMessage] ERROR: Failed to encode request - \(error.localizedDescription)")
                 return
             }
 
             do {
-                let (stream, _) = try await URLSession.shared.bytes(for: request)
+                print("[sendMessage] Sending request to \(url)...")
+                let (stream, response) = try await URLSession.shared.bytes(for: request)
+                print("[sendMessage] Response received: \(response)")
+                
                 var buffer = Data()
                 for try await byte in stream {
                     buffer.append(byte)
@@ -74,29 +83,34 @@ class OnlineModelChatViewModel: ObservableObject {
                         let lineData = buffer.subdata(in: buffer.startIndex..<range.lowerBound)
                         buffer.removeSubrange(buffer.startIndex...range.lowerBound)
 
-                        if let line = String(data: lineData, encoding: .utf8),
-                           !line.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                           line.hasPrefix("data:") {
+                        if let line = String(data: lineData, encoding: .utf8) {
+                            let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if !trimmed.isEmpty, trimmed.hasPrefix("data:") {
+                                let jsonString = trimmed.dropFirst(5).trimmingCharacters(in: .whitespaces)
+                                print("[sendMessage] Received line: \(jsonString)")
 
-                            let jsonString = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
-                            if jsonString == "[DONE]" {
-                                break
-                            }
+                                if jsonString == "[DONE]" {
+                                    print("[sendMessage] Stream ended with [DONE]")
+                                    break
+                                }
 
-                            if let jsonData = jsonString.data(using: .utf8),
-                               let chunk = try? JSONDecoder().decode(OpenRouterStreamResponse.self, from: jsonData) {
-
-                                
-                                if let delta = chunk.choices.first?.delta.content {
-                                    answerText += delta
+                                if let jsonData = jsonString.data(using: .utf8),
+                                   let chunk = try? JSONDecoder().decode(OpenRouterStreamResponse.self, from: jsonData) {
+                                    if let delta = chunk.choices.first?.delta.content {
+                                        print("[sendMessage] Received delta: \(delta)")
+                                        answerText += delta
+                                    }
+                                } else {
+                                    print("[sendMessage] WARNING: Failed to decode chunk: \(jsonString)")
                                 }
                             }
                         }
                     }
                 }
-
+                print("[sendMessage] Streaming completed successfully.")
             } catch {
                 answerText = "Request failed: \(error.localizedDescription)"
+                print("[sendMessage] ERROR: Request failed - \(error.localizedDescription)")
             }
         }
     }

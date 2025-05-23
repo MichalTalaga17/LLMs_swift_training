@@ -5,7 +5,7 @@ import SwiftUI
 struct chaterApp: App {
     var body: some Scene {
         WindowGroup {
-            LocalModelChatView()
+            OnlineModelChatView()
         }
     }
 }

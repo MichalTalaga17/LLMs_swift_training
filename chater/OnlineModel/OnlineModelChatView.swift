@@ -5,8 +5,8 @@
 //  Created by Michał Talaga on 22/05/2025.
 //
 
-import SwiftUI
 import MarkdownUI
+import SwiftUI
 
 struct OnlineModelChatView: View {
     @StateObject private var viewModel = OnlineModelChatViewModel()
@@ -14,38 +14,44 @@ struct OnlineModelChatView: View {
 
     var body: some View {
         VStack {
+            Picker("Select Model", selection: $viewModel.selectedModel) {
+                ForEach(AIModel.allCases) { model in
+                    Text(model.displayName).tag(model)
+                }
+            }
+            .padding(.horizontal)
+            .foregroundColor(.white)
+            .accentColor(.white)
+            
             ScrollView {
-                
-                
-                
                 if viewModel.answerText.isEmpty {
                     ContentUnavailableView("Start your chat", systemImage: "message")
                         .foregroundStyle(.white)
                 } else {
                     Markdown(viewModel.answerText.filteredMarkdown)
-                        .markdownTextStyle() {
+                        .markdownTextStyle {
                             ForegroundColor(.white)
-                            
                         }
+                        .padding()
                 }
-            }.scrollBounceBehavior(.basedOnSize)
+                
+            }
+            .scrollBounceBehavior(.basedOnSize)
 
-            Divider()
+            Spacer()
 
-            VStack(alignment: .leading, spacing: 12) {
-//                if viewModel.isFocused {
-//                    HStack(spacing: 8) {
-//                        ForEach(viewModel.suggestions, id: \.self) { text in
-//                            Text(text)
-//                                .padding(.horizontal, 10)
-//                                .padding(.vertical, 6)
-//                                .background(Color.white.opacity(0.1))
-//                                .onTapGesture {
-//                                    viewModel.selectSuggestion(text)
-//                                }
-//                        }
-//                    }
-//                }
+            VStack(alignment: .leading) {
+                if viewModel.isFocused {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.suggestions, id: \.self) { text in
+                            Text(text)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .onTapGesture { viewModel.selectSuggestion(text) }
+                                .foregroundStyle(Color.white)
+                        }
+                    }
+                }
 
                 HStack {
                     TextField("", text: $viewModel.message, prompt: Text("Ask a question...").foregroundColor(.white.opacity(0.8)))
@@ -66,14 +72,15 @@ struct OnlineModelChatView: View {
                     }
                     .disabled(viewModel.message.isEmpty)
                 }
+                .padding()
+                .background(Color.white.opacity(0.1))
             }
-            .padding()
-            .background(Color.white.opacity(0.1))
         }
         .background(Color(red: 0.11, green: 0.11, blue: 0.11))
         // .animation(.easeInOut, value: viewModel.isFocused)
     }
 }
+
 #Preview {
     OnlineModelChatView()
 }
